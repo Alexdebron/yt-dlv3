@@ -19,21 +19,28 @@ async function ytdl(url) {
     }
   )
 
-  const { title, thumbnail, duration, resources } = res.data.data
+  // SAFE 🙃
+  if (!res.data || !res.data.data) {
+    throw new Error('Failed to fetch media data (Vidssave API)')
+  }
+
+  const data = res.data.data
 
   return {
     status: true,
     creater: "Chamod Nimsara",
-    title,
-    thumbnail,
-    duration,
-    formats: resources.map(r => ({
-      type: r.type,
-      quality: r.quality,
-      format: r.format,
-      size: r.size,
-      url: r.download_url
-    }))
+    title: data.title || null,
+    thumbnail: data.thumbnail || null,
+    duration: data.duration || null,
+    formats: Array.isArray(data.resources)
+      ? data.resources.map(r => ({
+          type: r.type,
+          quality: r.quality,
+          format: r.format,
+          size: r.size,
+          url: r.download_url
+        }))
+      : []
   }
 }
 
